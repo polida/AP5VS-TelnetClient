@@ -2,11 +2,13 @@ package utb.fai;
 
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.*;
 
 public class TelnetClient {
 
     private String serverIp;
     private int port;
+    private static final int THREAD_POOL_SIZE = 10;
 
     public TelnetClient(String serverIp, int port) {
         this.serverIp = serverIp;
@@ -14,20 +16,16 @@ public class TelnetClient {
     }
 
     public void run() {
+        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         try {
             Socket socket = new Socket(serverIp, port);
-            Thread receiverThread = new Thread(new Receiver(socket));
-            Thread senderThread = new Thread(new Sender(socket));
-            receiverThread.start();
-            senderThread.start();
-
-            // Implementation of receiving and sending data
-            // Implement processing of input from the user and sending data to the server
-            // Implement response processing from the server and output to the console
+            executorService.submit(new Receiver(socket));
+            executorService.submit(new Sender(socket));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     private class Sender implements Runnable {
         private Socket socket;
 
@@ -40,49 +38,48 @@ public class TelnetClient {
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                String InputLine;
+                String inputLine;
                 while (true) {
-                    while (true){
-                        InputLine = reader.readLine();
-                        if (InputLine.equals("/QUIT")) {
+
+                    if (System.in.available() > 0) {
+                        inputLine = reader.readLine();
+                        if (inputLine.equals("/QUIT")) {
                             socket.close();
                             System.exit(0);
+                            break;
                         }
-                        if (InputLine != null) {
-                            out.write(InputLine + "\r\n");
-                            out.flush();
+                        out.write(inputLine + "\r\n");
+                        out.flush();
                     }
                 }
-            }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    // Implement the Receiver class for receiving data from the server
-    private class Receiver implements Runnable {
-        private Socket socket;
+        private class Receiver implements Runnable {
+            private Socket socket;
 
-        public Receiver(Socket socket) {
-            this.socket = socket;
-        }
+            public Receiver(Socket socket) {
+                this.socket = socket;
+            }
 
-        @Override
-        public void run() {
-            try{
-                while (true) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    String line;
-                    if ((line= in.readLine()) != null) {
-                        System.out.println(line);
+            @Override
+            public void run() {
+                try {
+                    InputStream in = socket.getInputStream();
+                    while (true) {
+                        if (in.available() > 0) {
+                            byte[] buffer = new byte[1024];
+                            System.out.write(buffer, 0, in.read(buffer));
+                        }
                     }
+                } catch (SocketException e) {
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (SocketException e) {
-                return;
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
-    }
 }

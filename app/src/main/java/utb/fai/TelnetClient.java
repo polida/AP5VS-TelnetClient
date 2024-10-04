@@ -51,6 +51,13 @@ public class TelnetClient {
                         out.write(inputLine + "\r\n");
                         out.flush();
                     }
+                    else {
+                        try {
+                            Thread.sleep(20);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -73,6 +80,13 @@ public class TelnetClient {
                         if (in.available() > 0) {
                             byte[] buffer = new byte[1024];
                             System.out.write(buffer, 0, in.read(buffer));
+                        }
+                        else {
+                            try {
+                                Thread.sleep(20);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 } catch (SocketException e) {

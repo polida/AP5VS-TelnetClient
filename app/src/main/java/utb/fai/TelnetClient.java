@@ -8,7 +8,6 @@ public class TelnetClient {
 
     private String serverIp;
     private int port;
-    private static final int THREAD_POOL_SIZE = 10;
 
     public TelnetClient(String serverIp, int port) {
         this.serverIp = serverIp;
@@ -16,11 +15,12 @@ public class TelnetClient {
     }
 
     public void run() {
-        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         try {
             Socket socket = new Socket(serverIp, port);
-            executorService.submit(new Receiver(socket));
-            executorService.submit(new Sender(socket));
+           Thread sender = new Thread(new Sender(socket));
+            Thread receiver = new Thread(new Receiver(socket));
+            sender.start();
+            receiver.start();
         } catch (IOException e) {
             e.printStackTrace();
         }

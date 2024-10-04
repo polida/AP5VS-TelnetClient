@@ -40,7 +40,6 @@ public class TelnetClient {
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 String inputLine;
                 while (true) {
-
                     if (System.in.available() > 0) {
                         inputLine = reader.readLine();
                         if (inputLine.equals("/QUIT")) {

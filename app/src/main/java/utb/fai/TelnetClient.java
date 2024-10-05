@@ -14,15 +14,18 @@ public class TelnetClient {
     }
 
     public void run() {
+
         try {
             Socket socket = new Socket(serverIp, port);
-           Thread sender = new Thread(new Sender(socket));
+            Thread sender = new Thread(new Sender(socket));
             Thread receiver = new Thread(new Receiver(socket));
+
             sender.start();
             receiver.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     private class Sender implements Runnable {
@@ -34,10 +37,12 @@ public class TelnetClient {
 
         @Override
         public void run() {
+
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 String inputLine;
+
                 while (true) {
                     if (System.in.available() > 0) {
                         inputLine = reader.readLine();
@@ -49,7 +54,7 @@ public class TelnetClient {
                         out.write(inputLine + "\r\n");
                         out.flush();
                     } else {
-                        Thread.sleep(20);
+                        Thread.sleep(1);
                     }
                 }
             } catch (InterruptedException e) {
@@ -57,6 +62,7 @@ public class TelnetClient {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
     }
 
@@ -69,17 +75,19 @@ public class TelnetClient {
 
             @Override
             public void run() {
+
                 try {
                     InputStream in = socket.getInputStream();
+
                     while (true) {
                         if (in.available() > 0) {
                             byte[] buffer = new byte[1024];
                             System.out.write(buffer, 0, in.read(buffer));
-
                         } else {
-                            Thread.sleep(20);
+                            Thread.sleep(1);
                         }
                     }
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (SocketException e) {
@@ -87,6 +95,7 @@ public class TelnetClient {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
             }
         }
     }

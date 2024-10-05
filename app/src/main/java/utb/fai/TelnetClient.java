@@ -49,7 +49,7 @@ public class TelnetClient {
                         out.write(inputLine + "\r\n");
                         out.flush();
                     } else {
-                        Thread.sleep(2);
+                        Thread.sleep(20);
                     }
                 }
             } catch (InterruptedException e) {
@@ -77,7 +77,7 @@ public class TelnetClient {
                             System.out.write(buffer, 0, in.read(buffer));
 
                         } else {
-                            Thread.sleep(2);
+                            Thread.sleep(20);
                         }
                     }
                 } catch (InterruptedException e) {

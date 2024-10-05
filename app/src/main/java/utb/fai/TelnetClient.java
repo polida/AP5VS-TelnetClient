@@ -2,7 +2,6 @@ package utb.fai;
 
 import java.io.*;
 import java.net.*;
-import java.util.concurrent.*;
 
 public class TelnetClient {
 
@@ -49,8 +48,12 @@ public class TelnetClient {
                         }
                         out.write(inputLine + "\r\n");
                         out.flush();
+                    } else {
+                        Thread.sleep(2);
                     }
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -72,8 +75,13 @@ public class TelnetClient {
                         if (in.available() > 0) {
                             byte[] buffer = new byte[1024];
                             System.out.write(buffer, 0, in.read(buffer));
+
+                        } else {
+                            Thread.sleep(2);
                         }
                     }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 } catch (SocketException e) {
                     return;
                 } catch (IOException e) {
@@ -81,4 +89,4 @@ public class TelnetClient {
                 }
             }
         }
-}
+    }
